@@ -1,0 +1,97 @@
+What is a server?
+
+A server is a physical or virtual computer system that provides resources, services, or functionality to other computers (clients) over a network. In this infrastructure, it's a single machine hosting all components needed to run the website.
+
+What is the role of a domain name?
+
+The domain name foobar.com provides a human-readable address that maps to the server's IP address (8.8.8.8) through DNS. It allows users to access the website using an easy-to-remember name instead of a numerical IP address.
+
+What type of DNS record is www in www.foobar.com?
+
+The www record is typically a CNAME record (Canonical Name) that points to foobar.com, which then has an A record pointing to 8.8.8.8.
+
+What is the role of the web server?
+
+The web server (Nginx):
+
+   - Listens for HTTP/HTTPS requests on ports 80/443
+
+   - Serves static content (images, CSS, JavaScript files) directly
+
+    - Acts as a reverse proxy, forwarding dynamic requests to the application server
+
+    - Can handle SSL/TLS termination
+
+    -  Manages load balancing (though minimal in single-server setup)
+
+
+What is the role of the database?
+
+The database (MySQL):
+
+   - Stores and manages persistent data (user accounts, content, transactions)
+
+   - Provides structured data storage with tables, rows, and columns
+
+   -  Handles data retrieval, insertion, updates, and deletion
+
+    - Ensures data integrity and can manage relationships between data
+
+    - Processes queries from the application server
+
+7. How does the server communicate with the user's computer?
+
+The server communicates with users' computers using the HTTP/HTTPS protocol over TCP/IP. When a user requests www.foobar.com:
+
+    - DNS resolution converts the domain to IP 8.8.8.8
+
+    - The browser establishes a TCP connection to port 80/443 on 8.8.8.8
+
+    - HTTP requests are sent and responses are returned
+
+    - Data is transmitted in packets over the internet using various networking protocols
+
+
+Issues with This Infrastructure
+
+1. Single Point of Failure (SPOF)
+
+    Entire infrastructure depends on one server: If the server fails (hardware failure, power outage, network issues), the website becomes completely unavailable
+
+    Database on same server: If MySQL crashes, the entire application goes down
+
+    No redundancy: No backup server to take over if the primary fails
+
+2. Downtime During Maintenance
+
+    Code deployments require restarts: When deploying new application code, the application server often needs to restart, causing service interruption
+
+    Server updates: OS updates, security patches, or web server updates require reboots
+
+    Database maintenance: Schema changes or database optimizations require taking the site offline
+
+    Zero-downtime deployments are impossible with this architecture
+
+3. Cannot Scale with Increased Traffic
+
+    Limited resources: Single server has fixed CPU, RAM, disk I/O, and network bandwidth
+
+    Database bottleneck: As traffic increases, MySQL becomes a performance bottleneck since it shares resources with the web and application servers
+
+    No horizontal scaling: Cannot add more servers to distribute load
+
+    Traffic spikes can crash the server: Sudden increases in traffic (from marketing campaigns, social media mentions) can overwhelm the server
+
+    Geographic limitations: Users far from the server location experience higher latency
+
+Additional Concerns:
+
+    Security: Compromise of one component can lead to full system compromise
+
+    Backup challenges: Running backups affects performance since all services compete for resources
+
+    Monitoring limitations: Difficult to isolate performance issues when all components are bundled
+
+    Vendor lock-in: Dependent on a single hosting provider or physical location
+
+]
