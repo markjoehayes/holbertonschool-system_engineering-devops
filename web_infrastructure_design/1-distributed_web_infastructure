@@ -1,0 +1,200 @@
+Infrastructure Explanation
+For every additional element, why you are adding it:
+
+    Load Balancer (HAProxy)
+
+        Why added: To distribute incoming traffic across multiple web servers
+
+        Benefits: Prevents overloading a single server, provides high availability, enables rolling updates without downtime
+
+    Second Web/Application Server
+
+        Why added: For redundancy and load distribution
+
+        Benefits: Eliminates single point of failure for web tier, allows handling more concurrent users, enables Active-Active configuration
+
+    Separate Database Server
+
+        Why added: To isolate database from web/application processing
+
+        Benefits: Prevents resource contention, allows independent scaling, improves security through separation
+
+    Database Replica
+
+        Why added: For read scalability and data redundancy
+
+        Benefits: Offloads read queries from primary, provides failover capability, enables backups without affecting primary
+
+Load Balancer Distribution Algorithm:
+
+    Algorithm: Round Robin
+
+    How it works:
+
+        HAProxy maintains a list of healthy backend servers (Server 1, Server 2)
+
+        When a new request arrives, it forwards it to the next server in sequence
+
+        After sending to the last server, it cycles back to the first
+
+        Example sequence: Request 1 → Server 1, Request 2 → Server 2, Request 3 → Server 1, etc.
+
+    Advantages: Simple, predictable, evenly distributes connections
+
+    Alternative algorithms: Least Connections, Source IP Hash, Weighted Round Robin
+
+Active-Active vs Active-Passive Setup:
+
+    This configuration: Active-Active
+
+        Both web servers (Server 1 and Server 2) handle traffic simultaneously
+
+        Load balancer distributes requests to both servers
+
+        All servers are fully utilized
+
+    Active-Passive Setup:
+
+        Only one server (active) handles traffic
+
+        Other server(s) (passive) are on standby
+
+        Passive servers only become active if the primary fails
+
+        Less resource utilization but simpler failover
+
+    Difference:
+
+        Active-Active: Better resource utilization, higher throughput, but more complex configuration
+
+        Active-Passive: Simpler, guaranteed standby capacity, but wasted resources during normal operation
+
+Database Primary-Replica (Master-Slave) Cluster:
+
+    How it works:
+
+        Primary (Master) node: Handles all write operations (INSERT, UPDATE, DELETE)
+
+        Replica (Slave) node: Continuously replicates data from primary
+
+        Replication process:
+
+            Primary writes changes to binary log
+
+            Replica reads binary log events
+
+            Replica applies changes to its own database
+
+            Process is asynchronous or semi-synchronous
+
+        Failover: If primary fails, replica can be promoted to primary
+
+Difference between Primary and Replica nodes:
+
+From application perspective:
+
+    Primary node:
+
+        Handles ALL write operations
+
+        Handles critical read operations (where data freshness is essential)
+
+        Single point for data modification
+
+        Source of truth for data
+
+    Replica node:
+
+        Handles read-only queries (SELECT operations)
+
+        Used for analytics, reporting, backups
+
+        Data is eventually consistent (slight delay possible)
+
+        Can be scaled horizontally (multiple replicas)
+
+Application configuration typically:
+
+    Write database connection → Primary
+
+    Read database connection(s) → Replica(s) or Primary+Replica
+
+    Read/write splitting at application level or via proxy
+
+Issues with This Infrastructure
+1. Single Points of Failure (SPOF):
+
+    Load Balancer: Still a single HAProxy instance - if it fails, entire site is inaccessible
+
+    Database Primary: Only one write database - if it fails, no writes can occur
+
+    Single Database Server: Despite replication, only one physical database server exists
+
+2. Security Issues:
+
+    No Firewall: No network segmentation or traffic filtering between servers
+
+    No HTTPS/SSL: All traffic between users and load balancer is unencrypted (HTTP on port 80)
+
+    No encryption between components: Database connections, load balancer to web servers all unencrypted
+
+    No intrusion detection/prevention: No monitoring for malicious activity
+
+    Vulnerable to DDoS: Single load balancer can be overwhelmed
+
+3. No Monitoring:
+
+    No health checks: Beyond basic load balancer health checks
+
+    No performance monitoring: Cannot track CPU, memory, disk, or network usage
+
+    No application monitoring: No error tracking, request logging, or performance metrics
+
+    No alerting: No notifications for failures or performance degradation
+
+    No log aggregation: Logs scattered across servers, difficult to troubleshoot
+
+Additional Issues:
+
+    No automatic failover: Database replica requires manual promotion
+
+    No geographic redundancy: All servers in one location/data center
+
+    Shared database for web servers: Both web servers share same database, creating contention
+
+    No caching layer: No Redis/Memcached for frequently accessed data
+
+    No CDN: Static assets served directly from web servers
+
+    No backup system: No automated backups or disaster recovery plan
+
+    Database scalability limitation: Single primary database will eventually become bottleneck
+
+    No session persistence: User sessions might be lost if load balancer doesn't use sticky sessions
+
+    Synchronization issues: Application code must be manually synced between web servers
+
+Recommended Improvements:
+
+    Add redundant load balancers (Active-Passive or Active-Active)
+
+    Implement HTTPS with SSL certificates
+
+    Add firewall rules and security groups
+
+    Implement monitoring stack (Prometheus, Grafana)
+
+    Add caching layer (Redis)
+
+    Implement automated backups
+
+    Consider database connection pooling
+
+    Add CDN for static assets
+
+    Implement centralized logging
+
+    Add automated deployment system
+
+This three-server architecture significantly improves upon the single-server setup but still requires additional components for production readiness.
+
