@@ -1,0 +1,103 @@
+For every additional element, why you are adding it:
+
+    Three Firewalls
+
+        Load Balancer Firewall: Protects entire infrastructure from external threats, filters malicious traffic before it reaches web servers
+
+        Web Server Firewalls: Host-based firewalls (iptables/ufw) on each web server for defense in depth, limits internal lateral movement
+
+        Database Server Firewall: Restricts database access to only web servers, prevents unauthorized connections
+
+    SSL Certificate for HTTPS
+
+        Why added: Encrypts data between users and website, protects sensitive information (login credentials, personal data)
+
+        Benefits: Prevents eavesdropping, man-in-the-middle attacks, required for modern web standards, improves SEO rankings
+
+    Three Monitoring Clients
+
+        Why added: Collect performance data, logs, and metrics from each server component
+
+        Benefits: Enables proactive issue detection, performance optimization, capacity planning, and troubleshooting
+
+What are firewalls for:
+
+    Network Security: Filter incoming/outgoing traffic based on predefined rules
+
+    Access Control: Allow/deny traffic based on IP addresses, ports, protocols
+
+    Threat Prevention: Block malicious traffic (DDoS attempts, port scans, attack patterns)
+
+    Segmentation: Isolate different parts of infrastructure (web tier from database tier)
+
+    Compliance: Meet security standards and regulatory requirements
+
+Why is the traffic served over HTTPS:
+
+    Encryption: Prevents eavesdropping on sensitive data (passwords, credit cards, personal info)
+
+    Data Integrity: Ensures data isn't modified during transmission
+
+    Authentication: Verifies website identity, prevents phishing sites
+
+    Trust: Browser padlock icon builds user confidence
+
+    SEO Benefits: Google ranks HTTPS sites higher
+
+    Modern Requirement: Many web features (geolocation, service workers) require HTTPS
+
+    Regulatory Compliance: Required by GDPR, PCI-DSS, etc.
+
+What monitoring is used for:
+
+    Performance Tracking: Monitor response times, resource usage, throughput
+
+    Availability: Ensure services are up and responding
+
+    Capacity Planning: Identify when to scale resources
+
+    Troubleshooting: Diagnose issues quickly with historical data
+
+    Security: Detect anomalous patterns or attacks
+
+    Business Metrics: Track user behavior, conversion rates
+
+    Compliance: Maintain audit trails and logs
+
+How the monitoring tool is collecting data:
+
+Sumo Logic (as example) collection methods:
+
+    Agents/Clients:
+
+        Installed on each server (web servers, database, load balancer)
+
+        Continuously collect system metrics (CPU, memory, disk, network)
+
+        Forward application logs and access logs
+
+    Collection Methods:
+
+        Log Files: Tails and forwards log files (Nginx access/error logs, application logs, MySQL logs)
+
+        System Metrics: Uses OS tools (proc filesystem, system APIs) to gather resource usage
+
+        Application Metrics: Custom instrumentation via SDKs or agents
+
+        Network Metrics: Collects from load balancer and firewall logs
+
+    Transport:
+
+        Encrypted connection to Sumo Logic collectors
+
+        Batch processing for efficiency
+
+        Compression to reduce bandwidth
+
+    Data Processing:
+
+        Parsing structured and unstructured logs
+
+        Extracting fields and patterns
+
+        Correlating events across servers
